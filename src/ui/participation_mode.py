@@ -8,6 +8,7 @@ from typing import Optional
 
 from src.core.ai_client import AIClient
 from src.core.debate_manager import DebateManager
+from src.core.debate_states import DebateState
 from src.agents.logician import Logician
 from src.agents.skeptic import Skeptic
 from src.core.message import Message, MessageType
@@ -18,8 +19,8 @@ class ParticipationMode:
     """
     参与模式控制器
     """
-    def __init__(self):
-        self.cli = CLIInterface(theme_name="default")
+    def __init__(self, theme_name: str = "default"):
+        self.cli = CLIInterface(theme_name=theme_name)
         self.cmd_processor = CommandProcessor()
         self.ai_client = AIClient()
         
@@ -28,6 +29,7 @@ class ParticipationMode:
         
         self.debate_manager: Optional[DebateManager] = None
         self.debate_thread: Optional[threading.Thread] = None
+        self.displayed_message_count = 0  # 追踪已显示的消息数量
         
         self._setup_command_handlers()
 
@@ -57,8 +59,14 @@ class ParticipationMode:
         self._start_debate(topic)
         
         # 主循环，处理用户输入
-        while self.debate_manager and self.debate_manager.is_running():
+        while self.debate_manager and self._is_debate_active():
             try:
+                # 处理一轮辩论
+                if self.debate_manager.state == DebateState.ACTIVE:
+                    self.debate_manager.process_round()
+                    # 显示最新的消息
+                    self._display_latest_messages()
+                
                 user_input = self.cli.get_user_input("您的指令或消息")
                 parsed_command = self.cmd_processor.parse_command(user_input)
                 
@@ -74,23 +82,45 @@ class ParticipationMode:
         
         self.cli.show_info("辩论已结束。")
 
+    def start_participation_mode(self):
+        """启动参与模式（别名方法）"""
+        self.run()
+
     def _start_debate(self, topic: str):
         """初始化并启动辩论"""
         self.debate_manager = DebateManager(
             logician=self.logician,
             skeptic=self.skeptic,
             topic=topic,
-            max_rounds=10,
-            message_callback=self._handle_debate_message
+            max_rounds=10
         )
         
-        self.debate_thread = threading.Thread(
-            target=self.debate_manager.run_participation_mode,
-            daemon=True
-        )
-        self.debate_thread.start()
-        self.cli.show_success(f"辩论开始！主题: {topic}")
+        # 启动辩论（这里我们需要手动开始辩论而不是在后台线程中运行）
+        if self.debate_manager.start_debate():
+            self.cli.show_success(f"辩论开始！主题: {topic}")
+        else:
+            self.cli.show_error("无法启动辩论")
 
+    def _is_debate_active(self) -> bool:
+        """检查辩论是否仍在进行中"""
+        if not self.debate_manager:
+            return False
+        return self.debate_manager.state in [DebateState.ACTIVE, DebateState.PAUSED]
+    
+    def _display_latest_messages(self):
+        """显示最新的辩论消息"""
+        if not self.debate_manager:
+            return
+        
+        # 获取对话历史并显示新消息
+        history = self.debate_manager.get_conversation_history()
+        new_messages = history[self.displayed_message_count:]
+        
+        for message in new_messages:
+            self.cli.display_message(message)
+        
+        self.displayed_message_count = len(history)
+    
     def _handle_debate_message(self, message: Message):
         """处理来自辩论管理器的消息"""
         self.cli.display_message(message)
@@ -114,7 +144,7 @@ class ParticipationMode:
 
     def _handle_status(self, args):
         if self.debate_manager:
-            status = self.debate_manager.get_status()
+            status = self.debate_manager.get_debate_status()
             self.cli.show_info(f"状态: {status['state']}, 轮次: {status['current_round']}/{status['max_rounds']}")
         return {"success": True}
 
@@ -147,5 +177,7 @@ class ParticipationMode:
                 message_type=MessageType.USER_INPUT,
                 metadata={"target": target}
             )
-            self.debate_manager.add_user_message(user_message)
+            # 将用户消息添加到对话历史中
+            self.debate_manager.conversation.add_message(user_message)
+            self.cli.display_message(user_message)
         return {"success": True}
