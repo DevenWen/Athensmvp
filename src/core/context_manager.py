@@ -69,7 +69,7 @@ class ContextManager:
         :param max_messages: 上下文包含的最大消息数
         :return: 构建好的上下文消息列表
         """
-        all_messages = self.conversation.get_messages()
+        all_messages = self.conversation.messages
         
         # 计算所有消息的得分
         scored_messages = []

@@ -73,7 +73,8 @@ class CommunicationChannel:
         if self.status != CommunicationStatus.ACTIVE:
             return False
         
-        if message.sender not in self.participants:
+        # 广播通道允许任何人发送消息
+        if self.channel_id != "broadcast" and message.sender not in self.participants:
             return False
         
         # 如果指定了接收者，检查是否为参与者
