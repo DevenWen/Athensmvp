@@ -76,7 +76,7 @@ class TestConsensusDetection(unittest.TestCase):
     
     def test_consensus_state_management(self):
         """测试协商状态管理"""
-        # 初始状态应该是ONGOING
+        # 初始状态应该��ONGOING
         self.assertEqual(self.debate_manager.get_consensus_status(), ConsensusState.ONGOING)
         
         # 更新状态
@@ -143,9 +143,16 @@ class TestConsensusDetection(unittest.TestCase):
     @patch('src.core.debate_manager.logger')
     def test_consensus_detection_logging(self, mock_logger):
         """测试共识检测的日志记录"""
-        # 添加包含同意的消息
+        # 先添加一条普通消息
+        self.debate_manager.conversation.add_message(Message(
+            content="这是一个初始论点",
+            sender="Logician",
+            recipient="Skeptic",
+            message_type=MessageType.ARGUMENT
+        ))
+        # 再添加包含同意的消息
         message = Message(
-            content="我同意你的观点",
+            content="我同意你的结论",
             sender="Skeptic",
             recipient="Logician",
             message_type=MessageType.COUNTER
@@ -185,19 +192,19 @@ class TestConversationSummarizer(unittest.TestCase):
         """添加测试消息"""
         messages = [
             Message(
-                content="人工智能的发展将会带来巨大的社会变革",
+                content="人工智能的发展无疑将对���会结构、就业市场和伦理观念带来前所未有的巨大变革。",
                 sender="Logician",
                 recipient="Skeptic",
                 message_type=MessageType.ARGUMENT
             ),
             Message(
-                content="但是我们也需要考虑AI可能带来的风险和挑战",
+                content="然而，我们绝不能忽视AI技术滥用可能带来的严重风险，例如大规模失业、算法偏见以及对个人隐私的侵犯等。",
                 sender="Skeptic", 
                 recipient="Logician",
                 message_type=MessageType.COUNTER
             ),
             Message(
-                content="你说得很有道理，我同意我们需要谨慎对待AI的发展",
+                content="你提出的这些风险确实非常关键，我完全同意我们必须在推动AI发展的同时，建立强有力的监管框架和伦理准则来应对这些挑战。",
                 sender="Logician",
                 recipient="Skeptic", 
                 message_type=MessageType.CLARIFICATION
@@ -222,6 +229,12 @@ class TestConversationSummarizer(unittest.TestCase):
     
     def test_extract_key_points(self):
         """测试关键论点提取"""
+        # 在一个空的 conversation 中，应该返回空列表
+        empty_conversation = Conversation("empty")
+        empty_summarizer = ConversationSummarizer(empty_conversation)
+        self.assertEqual(empty_summarizer.extract_key_points(), [])
+
+        # 在有内容的 conversation 中，应该返回非空列表
         key_points = self.summarizer.extract_key_points()
         
         self.assertIsInstance(key_points, list)
@@ -246,13 +259,13 @@ class TestConversationSummarizer(unittest.TestCase):
         # 创建新的对话，不包含同意表达
         conversation = Conversation("test_no_agreement")
         conversation.add_message(Message(
-            content="这是一个普通的论证",
+            content="这是一个非常复杂的论证，需要我们从多个角度进行深入的探讨和分析。",
             sender="Logician",
             recipient="Skeptic",
             message_type=MessageType.ARGUMENT
         ))
         conversation.add_message(Message(
-            content="这是一个反驳",
+            content="我承认这个问题的复杂性，但我认为你的论证中存在一些逻辑上的跳跃，需要进一步澄清。",
             sender="Skeptic",
             recipient="Logician", 
             message_type=MessageType.COUNTER
@@ -326,7 +339,14 @@ class TestConsensusIntegration(unittest.TestCase):
         # 设置辩论状态为ACTIVE
         self.debate_manager._change_state(DebateState.ACTIVE)
         
-        # 添加包含同意的消息
+        # 先添加一条普通消息
+        self.debate_manager.conversation.add_message(Message(
+            content="这是一个初始论点",
+            sender="Logician",
+            recipient="Skeptic",
+            message_type=MessageType.ARGUMENT
+        ))
+        # 再添加包含同意的消息
         message = Message(
             content="经过深入思考，我同意你的结论",
             sender="Skeptic",
