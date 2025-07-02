@@ -26,10 +26,19 @@ class TurnType(Enum):
     SUMMARY = "summary"                       # 总结发言
 
 
+class ConsensusState(Enum):
+    """协商状态枚举"""
+    ONGOING = "ongoing"                       # 讨论进行中
+    NEGOTIATING = "negotiating"               # 协商阶段
+    CONSENSUS_REACHED = "consensus_reached"   # 达成共识
+    CONSENSUS_FAILED = "consensus_failed"     # 协商失败
+
+
 class TerminationReason(Enum):
     """辩论终止原因"""
     MAX_ROUNDS_REACHED = "max_rounds_reached"      # 达到最大轮次
     CONSENSUS_REACHED = "consensus_reached"         # 达成共识
+    CONSENSUS_FAILED = "consensus_failed"           # 协商失败
     USER_TERMINATED = "user_terminated"             # 用户主动终止
     SYSTEM_ERROR = "system_error"                   # 系统错误
     CONTENT_REPETITION = "content_repetition"      # 内容重复
@@ -62,6 +71,17 @@ class DebateConfig:
     # 智能终止检测
     REPETITION_CHECK_WINDOW = 3  # 检查重复的消息窗口
     QUALITY_DEGRADATION_THRESHOLD = 0.3  # 质量下降阈值
+    
+    # 协商检测配置
+    CONSENSUS_KEYWORDS_ZH = [
+        "同意你的结论", "我同意", "赞同你的观点", "接受你的结论", 
+        "你说得对", "我认为你是对的", "我接受", "同意这个观点"
+    ]
+    CONSENSUS_KEYWORDS_EN = [
+        "I agree with your conclusion", "I agree", "you are right", "I accept",
+        "I concur", "you make a valid point", "I'm convinced", "I accept your argument"
+    ]
+    CONSENSUS_CONFIDENCE_THRESHOLD = 0.8  # 协商检测置信度阈值
 
 
 class DebateRound:

@@ -11,7 +11,7 @@ import logging
 
 from src.core.debate_states import (
     DebateState, TurnType, TerminationReason, DebateConfig, 
-    DebateRound, DebateMetrics, is_valid_state_transition, get_next_turn_type
+    DebateRound, DebateMetrics, ConsensusState, is_valid_state_transition, get_next_turn_type
 )
 from src.core.message import Message, MessageType, create_argument_message, create_counter_message
 from src.core.conversation import Conversation
@@ -68,6 +68,7 @@ class DebateManager:
         self.current_round = 0
         self.current_speaker = self.logician  # 逻辑者先发言
         self.termination_reason: Optional[TerminationReason] = None
+        self.consensus_state = ConsensusState.ONGOING
         
         # 通信系统
         self.communication = Communication()
@@ -320,10 +321,10 @@ class DebateManager:
             self._terminate_debate(TerminationReason.QUALITY_DEGRADATION)
             return False
             
-        # 检查共识达成（可以在后续版本中实现更复杂的逻辑）
-        # if self._detect_consensus():
-        #     self._terminate_debate(TerminationReason.CONSENSUS_REACHED)
-        #     return False
+        # 检查共识达成
+        if self.check_consensus():
+            self._terminate_debate(TerminationReason.CONSENSUS_REACHED)
+            return False
             
         return True
         
@@ -460,6 +461,7 @@ class DebateManager:
             "current_speaker": self.current_speaker.name if self.current_speaker else None,
             "total_messages": len(self.conversation.messages),
             "termination_reason": self.termination_reason.value if self.termination_reason else None,
+            "consensus_state": self.consensus_state.value,
             "started_at": self.metrics.start_time.isoformat(),
             "duration": self.metrics.get_duration().total_seconds(),
             "participants": [self.logician.name, self.skeptic.name]
@@ -502,3 +504,75 @@ class DebateManager:
             
         logger.info(f"Observation mode completed. Final state: {self.state}")
         return self.get_debate_summary()
+        
+    # === 共识检测相关方法 ===
+    
+    def check_consensus(self) -> bool:
+        """
+        检查是否达成共识
+        
+        Returns:
+            是否达成共识
+        """
+        if len(self.conversation.messages) < 2:
+            return False
+            
+        # 获取最近的消息
+        recent_messages = self.conversation.get_recent_messages(3)
+        
+        # 检查最近的消息是否包含同意表达
+        for message in recent_messages:
+            if self.detect_agreement_keywords(message.content):
+                self.update_consensus_state(ConsensusState.CONSENSUS_REACHED)
+                logger.info(f"Consensus detected in message from {message.sender}")
+                return True
+                
+        return False
+        
+    def detect_agreement_keywords(self, content: str) -> bool:
+        """
+        检测消息中的同意关键词
+        
+        Args:
+            content: 消息内容
+            
+        Returns:
+            是否包含同意表达
+        """
+        if not content:
+            return False
+            
+        content_lower = content.lower().strip()
+        
+        # 检查中文同意表达
+        for keyword in DebateConfig.CONSENSUS_KEYWORDS_ZH:
+            if keyword in content_lower:
+                return True
+                
+        # 检查英文同意表达
+        for keyword in DebateConfig.CONSENSUS_KEYWORDS_EN:
+            if keyword.lower() in content_lower:
+                return True
+                
+        return False
+        
+    def update_consensus_state(self, state: ConsensusState) -> None:
+        """
+        更新协商状态
+        
+        Args:
+            state: 新的协商状态
+        """
+        old_state = self.consensus_state
+        self.consensus_state = state
+        
+        logger.info(f"Consensus state changed: {old_state} -> {state}")
+        
+    def get_consensus_status(self) -> ConsensusState:
+        """
+        获取当前协商状态
+        
+        Returns:
+            当前协商状态
+        """
+        return self.consensus_state
