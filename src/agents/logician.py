@@ -6,6 +6,7 @@
 from typing import Optional
 from src.agents.base_agent import BaseAgent
 from src.core.ai_client import AIClient
+from src.core.message import MessageType
 from src.config.prompts import get_logician_prompt
 
 
@@ -65,14 +66,14 @@ class Logician(BaseAgent):
             # 创建并发送回应消息
             self.send_message(
                 content=response,
-                message_type="argument"
+                message_type=MessageType.ARGUMENT
             )
             return response
         else:
             fallback_response = "抱歉，我现在无法生成回应。让我重新组织思路。"
             self.send_message(
                 content=fallback_response,
-                message_type="system_error"
+                message_type=MessageType.SYSTEM
             )
             return fallback_response
     
@@ -137,7 +138,7 @@ class Logician(BaseAgent):
         if response:
             self.send_message(
                 content=response,
-                message_type="supportive_argument"
+                message_type=MessageType.ARGUMENT
             )
         
         return response or "无法构建支持性论证"

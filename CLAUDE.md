@@ -109,12 +109,11 @@ The system uses structured messages with types:
 - Unit tests for individual components (agents, messaging, debate management)
 - Integration tests for agent-to-agent communication
 - End-to-end tests for complete debate scenarios  
-- 使用 `python3` 作为 bash 命令 
-
+- 执行单元测试前，确保已经使用 venv 的 python 环境
 
 ## Stage
 [x] 01_foundation
 [x] 02_agents
 [x] 03_messaging
 [x] 04_debate_manager
-[ ] 05_user_interface
+[x] 05_user_interface

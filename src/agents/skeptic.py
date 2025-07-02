@@ -6,6 +6,7 @@
 from typing import Optional, List
 from src.agents.base_agent import BaseAgent
 from src.core.ai_client import AIClient
+from src.core.message import MessageType
 from src.config.prompts import get_skeptic_prompt
 
 
@@ -65,14 +66,14 @@ class Skeptic(BaseAgent):
             # 创建并发送回应消息
             self.send_message(
                 content=response,
-                message_type="counter"
+                message_type=MessageType.COUNTER
             )
             return response
         else:
             fallback_response = "让我重新审视这个问题，可能还有我们没有考虑到的角度。"
             self.send_message(
                 content=fallback_response,
-                message_type="system_error"
+                message_type=MessageType.SYSTEM
             )
             return fallback_response
     
@@ -109,7 +110,7 @@ class Skeptic(BaseAgent):
         if response:
             self.send_message(
                 content=response,
-                message_type="challenge"
+                message_type=MessageType.COUNTER
             )
         
         return response or "无法完成论证质疑"
@@ -176,7 +177,7 @@ class Skeptic(BaseAgent):
         if response:
             self.send_message(
                 content=response,
-                message_type="counterexample"
+                message_type=MessageType.COUNTER
             )
         
         return response or "无法提出有效反例"

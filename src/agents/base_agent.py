@@ -8,33 +8,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 from src.core.ai_client import AIClient
-
-
-class Message:
-    """消息类，用于智能体间的通信"""
-    
-    def __init__(self, content: str, sender: str, recipient: Optional[str] = None, 
-                 message_type: str = "general", timestamp: Optional[datetime] = None):
-        self.content = content
-        self.sender = sender
-        self.recipient = recipient
-        self.message_type = message_type
-        self.timestamp = timestamp or datetime.now()
-        self.metadata: Dict[str, Any] = {}
-    
-    def __str__(self) -> str:
-        return f"[{self.sender}]: {self.content}"
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """将消息转换为字典格式"""
-        return {
-            "content": self.content,
-            "sender": self.sender,
-            "recipient": self.recipient,
-            "message_type": self.message_type,
-            "timestamp": self.timestamp.isoformat(),
-            "metadata": self.metadata
-        }
+from src.core.message import Message, MessageType
 
 
 class BaseAgent(ABC):
@@ -52,7 +26,7 @@ class BaseAgent(ABC):
         self.metadata: Dict[str, Any] = {}
     
     def send_message(self, content: str, recipient: Optional[str] = None, 
-                    message_type: str = "general") -> Message:
+                    message_type: MessageType = MessageType.GENERAL) -> Message:
         """
         发送消息
         
@@ -67,8 +41,8 @@ class BaseAgent(ABC):
         message = Message(
             content=content,
             sender=self.name,
-            recipient=recipient,
-            message_type=message_type
+            message_type=message_type,
+            recipient=recipient
         )
         
         # 将消息添加到对话历史

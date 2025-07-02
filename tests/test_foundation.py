@@ -11,7 +11,7 @@ def test_settings_load():
     assert settings is not None
     # We can't assert openrouter_api_key because it would be None without a .env file
     # but we can check the defaults
-    assert settings.default_model == "deepseek/deepseek-chat-v3-0324"
+    assert settings.default_model == "google/gemini-2.5-flash"
 
 def test_ai_client_initialization():
     """

@@ -208,29 +208,36 @@ class CLIInterface:
     
     def display_message(self, message: Message) -> None:
         """显示单条消息（带边框的富文本格式）"""
+        # 获取发送者名称（如果是对象，提取其名称或类名）
+        sender_name = self._get_sender_display_name(message.sender)
+        
         # 根据发送者选择样式
-        if message.sender in ["逻辑者", "Logician"]:
+        if sender_name in ["逻辑者", "Logician"] or "logician" in sender_name.lower():
             style = self.theme["logician"]
             icon = "🤔"
             border_style = self.theme["panel_border"]["logician"]
-        elif message.sender in ["怀疑者", "Skeptic"]:
+            display_name = "逻辑者"
+        elif sender_name in ["怀疑者", "Skeptic"] or "skeptic" in sender_name.lower():
             style = self.theme["skeptic"] 
             icon = "🤨"
             border_style = self.theme["panel_border"]["skeptic"]
-        elif message.sender in ["用户", "User"]:
+            display_name = "怀疑者"
+        elif sender_name in ["用户", "User"] or "user" in sender_name.lower():
             style = self.theme["user"]
             icon = "👤"
             border_style = self.theme["panel_border"]["user"]
+            display_name = "用户"
         else:
             style = self.theme["system"]
             icon = "💬"
             border_style = self.theme["panel_border"]["system"]
+            display_name = sender_name
         
         # 格式化时间
         time_str = message.timestamp.strftime("%H:%M:%S")
         
         # 创建标题（发送者和时间）
-        title = f"{icon} {message.sender} [{time_str}]"
+        title = f"{icon} {display_name} [{time_str}]"
         
         # 使用Markdown渲染消息内容
         markdown_content = Markdown(message.content)
@@ -247,6 +254,23 @@ class CLIInterface:
         )
         
         self.console.print(message_panel)
+    
+    def _get_sender_display_name(self, sender) -> str:
+        """获取发送者的显示名称"""
+        if isinstance(sender, str):
+            return sender
+        elif hasattr(sender, 'name'):
+            return sender.name
+        elif hasattr(sender, '__class__'):
+            class_name = sender.__class__.__name__
+            if 'Logician' in class_name:
+                return "逻辑者"
+            elif 'Skeptic' in class_name:
+                return "怀疑者"
+            else:
+                return class_name
+        else:
+            return str(sender)
     
     def switch_theme(self, theme_name: str) -> bool:
         """切换主题"""

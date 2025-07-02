@@ -136,23 +136,30 @@ class RealTimeDisplay:
     
     def _create_message_panel(self, message: Message) -> Panel:
         """创建单个消息面板"""
+        # 获取发送者名称（如果是对象，提取其名称或类名）
+        sender_name = self._get_sender_display_name(message.sender)
+        
         # 根据发送者选择样式
-        if message.sender in ["逻辑者", "Logician"]:
+        if sender_name in ["逻辑者", "Logician"] or "logician" in sender_name.lower():
             icon = "🤔"
             border_style = self.theme.get("panel_border", {}).get("logician", "blue")
-        elif message.sender in ["怀疑者", "Skeptic"]:
+            display_name = "逻辑者"
+        elif sender_name in ["怀疑者", "Skeptic"] or "skeptic" in sender_name.lower():
             icon = "🤨"
             border_style = self.theme.get("panel_border", {}).get("skeptic", "red")
-        elif message.sender in ["用户", "User"]:
+            display_name = "怀疑者"
+        elif sender_name in ["用户", "User"] or "user" in sender_name.lower():
             icon = "👤"
             border_style = self.theme.get("panel_border", {}).get("user", "yellow")
+            display_name = "用户"
         else:
             icon = "💬"
             border_style = self.theme.get("panel_border", {}).get("system", "white")
+            display_name = sender_name
         
         # 格式化时间
         time_str = message.timestamp.strftime("%H:%M:%S")
-        title = f"{icon} {message.sender} [{time_str}]"
+        title = f"{icon} {display_name} [{time_str}]"
         
         # 使用Markdown渲染内容
         content = Markdown(message.content)
@@ -165,6 +172,23 @@ class RealTimeDisplay:
             box=box.ROUNDED,
             padding=(0, 1)
         )
+    
+    def _get_sender_display_name(self, sender) -> str:
+        """获取发送者的显示名称"""
+        if isinstance(sender, str):
+            return sender
+        elif hasattr(sender, 'name'):
+            return sender.name
+        elif hasattr(sender, '__class__'):
+            class_name = sender.__class__.__name__
+            if 'Logician' in class_name:
+                return "逻辑者"
+            elif 'Skeptic' in class_name:
+                return "怀疑者"
+            else:
+                return class_name
+        else:
+            return str(sender)
     
     def _update_input_area(self) -> None:
         """更新输入区域"""
@@ -214,30 +238,49 @@ class RealTimeDisplay:
     
     def _update_loop(self) -> None:
         """更新循环（在独立线程中运行）"""
+        error_count = 0
+        max_errors = 10
+        
         while self.is_running:
             try:
                 # 处理队列中的更新请求
                 while not self.update_queue.empty():
-                    update_type, data = self.update_queue.get_nowait()
-                    
-                    if update_type == "message":
-                        self.messages.append(data)
-                        self._update_messages()
-                    elif update_type == "status":
-                        self.status_info.update(data)
-                        self._update_header()
-                    elif update_type == "input_hint":
-                        self.input_prompt = data
-                        self._update_input_area()
-                    elif update_type == "clear_messages":
-                        self.messages.clear()
-                        self._update_messages()
+                    try:
+                        update_type, data = self.update_queue.get_nowait()
+                        
+                        if update_type == "message":
+                            if data and hasattr(data, 'content'):
+                                self.messages.append(data)
+                                self._update_messages()
+                        elif update_type == "status":
+                            if isinstance(data, dict):
+                                self.status_info.update(data)
+                                self._update_header()
+                        elif update_type == "input_hint":
+                            if isinstance(data, str):
+                                self.input_prompt = data
+                                self._update_input_area()
+                        elif update_type == "clear_messages":
+                            self.messages.clear()
+                            self._update_messages()
+                            
+                        error_count = 0  # 重置错误计数
+                        
+                    except Exception as e:
+                        error_count += 1
+                        if error_count >= max_errors:
+                            # 如果错误过多，停止更新循环
+                            self.is_running = False
+                            break
                 
                 time.sleep(0.1)  # 避免过度CPU使用
                 
             except Exception as e:
-                # 错误处理，避免更新线程崩溃
-                pass
+                error_count += 1
+                if error_count >= max_errors:
+                    self.is_running = False
+                    break
+                time.sleep(0.5)  # 错误后等待更长时间
     
     def add_message(self, message: Message) -> None:
         """添加新消息"""
@@ -270,18 +313,33 @@ class RealTimeDisplay:
     def get_user_input(self, prompt: str = "请输入") -> str:
         """获取用户输入（非阻塞方式）"""
         # 临时停止Live显示以获取输入
+        live_was_running = False
         if self.live:
-            self.live.stop()
+            try:
+                self.live.stop()
+                live_was_running = True
+            except:
+                pass
         
         try:
             # 显示输入提示
             self.console.print(f"\n[bold yellow]💬 {prompt}:[/bold yellow] ", end="")
             user_input = input()
             return user_input.strip()
+        except (KeyboardInterrupt, EOFError):
+            # 用户中断输入
+            return ""
+        except Exception:
+            # 其他输入错误
+            return ""
         finally:
             # 重新启动Live显示
-            if self.live and self.is_running:
-                self.live.start()
+            if live_was_running and self.is_running:
+                try:
+                    if self.live:
+                        self.live.start()
+                except:
+                    pass
 
 
 class NonBlockingInput:

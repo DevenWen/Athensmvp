@@ -7,10 +7,11 @@ import pytest
 from unittest.mock import Mock, patch
 from datetime import datetime
 
-from src.agents.base_agent import BaseAgent, Message
+from src.agents.base_agent import BaseAgent
 from src.agents.logician import Logician
 from src.agents.skeptic import Skeptic
 from src.core.ai_client import AIClient
+from src.core.message import Message, MessageType
 
 
 class TestMessage:
@@ -18,29 +19,29 @@ class TestMessage:
     
     def test_message_creation(self):
         """测试消息创建"""
-        msg = Message("测试内容", "发送者", "接收者", "test")
+        msg = Message(content="测试内容", sender="发送者", recipient="接收者", message_type=MessageType.GENERAL)
         
         assert msg.content == "测试内容"
         assert msg.sender == "发送者"
         assert msg.recipient == "接收者"
-        assert msg.message_type == "test"
+        assert msg.message_type == MessageType.GENERAL
         assert isinstance(msg.timestamp, datetime)
         assert isinstance(msg.metadata, dict)
     
     def test_message_str(self):
         """测试消息字符串表示"""
-        msg = Message("Hello", "Alice")
+        msg = Message(content="Hello", sender="Alice", message_type=MessageType.GENERAL)
         assert str(msg) == "[Alice]: Hello"
     
     def test_message_to_dict(self):
         """测试消息转换为字典"""
-        msg = Message("测试", "用户", "AI", "question")
+        msg = Message(content="测试", sender="用户", recipient="AI", message_type=MessageType.GENERAL)
         msg_dict = msg.to_dict()
         
         assert msg_dict["content"] == "测试"
         assert msg_dict["sender"] == "用户"
         assert msg_dict["recipient"] == "AI"
-        assert msg_dict["message_type"] == "question"
+        assert msg_dict["message_type"] == "general"
         assert "timestamp" in msg_dict
         assert "metadata" in msg_dict
 
@@ -75,18 +76,18 @@ class TestBaseAgent:
     
     def test_send_message(self, base_agent):
         """测试发送消息"""
-        message = base_agent.send_message("测试消息", "接收者", "test")
+        message = base_agent.send_message("测试消息", "接收者", MessageType.GENERAL)
         
         assert isinstance(message, Message)
         assert message.content == "测试消息"
         assert message.sender == "测试智能体"
         assert message.recipient == "接收者"
-        assert message.message_type == "test"
+        assert message.message_type == MessageType.GENERAL
         assert len(base_agent.conversation_history) == 1
     
     def test_receive_message(self, base_agent):
         """测试接收消息"""
-        msg = Message("收到的消息", "其他人")
+        msg = Message(content="收到的消息", sender="其他人", message_type=MessageType.GENERAL)
         base_agent.receive_message(msg)
         
         assert len(base_agent.conversation_history) == 1
@@ -94,7 +95,7 @@ class TestBaseAgent:
     
     def test_receive_own_message(self, base_agent):
         """测试不会接收自己的消息"""
-        msg = Message("自己的消息", "测试智能体")
+        msg = Message(content="自己的消息", sender="测试智能体", message_type=MessageType.GENERAL)
         base_agent.receive_message(msg)
         
         assert len(base_agent.conversation_history) == 0
@@ -106,7 +107,7 @@ class TestBaseAgent:
         base_agent.send_message("消息2")
         
         # 接收消息
-        msg = Message("收到的消息", "其他人")
+        msg = Message(content="收到的消息", sender="其他人", message_type=MessageType.GENERAL)
         base_agent.receive_message(msg)
         
         history = base_agent.get_conversation_history()
@@ -119,7 +120,7 @@ class TestBaseAgent:
     def test_conversation_context(self, base_agent):
         """测试对话上下文生成"""
         base_agent.send_message("你好")
-        msg = Message("回复", "其他人")
+        msg = Message(content="回复", sender="其他人", message_type=MessageType.GENERAL)
         base_agent.receive_message(msg)
         
         context = base_agent.get_conversation_context()
@@ -204,7 +205,7 @@ class TestLogician:
         
         # 检查是否发送了消息
         assert len(logician.conversation_history) == 1
-        assert logician.conversation_history[0].message_type == "supportive_argument"
+        assert logician.conversation_history[0].message_type == MessageType.ARGUMENT
     
     def test_respond_to_skepticism(self, logician, mock_ai_client):
         """测试回应怀疑"""
@@ -257,7 +258,7 @@ class TestSkeptic:
         
         # 检查是否发送了消息
         assert len(skeptic.conversation_history) == 1
-        assert skeptic.conversation_history[0].message_type == "challenge"
+        assert skeptic.conversation_history[0].message_type == MessageType.COUNTER
     
     def test_find_contradictions(self, skeptic, mock_ai_client):
         """测试寻找矛盾"""
@@ -276,7 +277,7 @@ class TestSkeptic:
         
         # 检查是否发送了消息
         assert len(skeptic.conversation_history) == 1
-        assert skeptic.conversation_history[0].message_type == "counterexample"
+        assert skeptic.conversation_history[0].message_type == MessageType.COUNTER
     
     def test_respond_to_logic(self, skeptic, mock_ai_client):
         """测试回应逻辑论证"""
