@@ -1,0 +1,31 @@
+## 系统错误消息
+
+### API连接错误
+- `api_connection_failed`: "无法连接到OpenRouter API，请检查网络连接和API密钥"
+- `api_quota_exceeded`: "API调用额度已用完，请稍后再试或检查账户余额"
+- `api_rate_limit`: "API调用频率过高，请稍等片刻后重试"
+- `api_invalid_key`: "API密钥无效，请检查OPENROUTER_API_KEY环境变量"
+
+### 配置错误
+- `config_not_found`: "配置文件未找到，将使用默认配置"
+- `config_invalid_format`: "配置文件格式无效，请检查JSON语法"
+- `config_permission_denied`: "无法写入配置文件，请检查文件权限"
+- `config_backup_failed`: "配置文件备份失败"
+
+### 辩论系统错误
+- `debate_init_failed`: "辩论初始化失败，请检查智能体配置"
+- `agent_response_timeout`: "智能体响应超时，请重试或检查网络"
+- `consensus_detection_failed`: "共识检测失败，继续辩论流程"
+- `message_processing_error`: "消息处理出错，请重新发送"
+
+### 用户输入错误
+- `invalid_command`: "无效命令，输入 /help 查看可用命令"
+- `invalid_mention`: "无效的@提及格式，请使用 @apollo 或 @muses"
+- `empty_message`: "消息不能为空，请输入有效内容"
+- `message_too_long`: "消息过长，请缩短后重试"
+
+### 文件系统错误
+- `file_not_found`: "文件未找到"
+- `file_permission_denied`: "文件权限不足"
+- `directory_create_failed`: "目录创建失败"
+- `file_write_failed`: "文件写入失败"

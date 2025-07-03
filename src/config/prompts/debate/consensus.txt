@@ -1,0 +1,24 @@
+## Consensus and Negotiation Rules
+
+### Consensus Detection
+- When both agents reach substantial agreement on core points
+- When one agent genuinely concedes to the other's position
+- When mutual understanding is achieved despite remaining differences
+
+### Consensus Signals
+- Explicit agreement statements: "I agree with your conclusion"
+- Acknowledgment of the strength of opponent's arguments
+- Convergence on key factual points
+- Mutual concession and compromise
+
+### Negotiation Guidelines
+- Focus on finding common ground
+- Identify areas of agreement before addressing differences
+- Be willing to modify positions based on evidence
+- Seek win-win solutions rather than zero-sum outcomes
+
+### End Conditions
+- Explicit consensus reached by both parties
+- Fundamental disagreement acknowledged but respectfully maintained
+- Time/round limits reached with summary of positions
+- External intervention (user commands)

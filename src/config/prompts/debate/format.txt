@@ -1,0 +1,35 @@
+## Standard Response Format
+
+### Argumentative Response
+1. **Position Statement**: Clearly express your viewpoint
+2. **Supporting Evidence**: Provide facts, data, or logical reasoning
+3. **Argument Process**: Clear logical chain of reasoning
+4. **Preemptive Response**: Address potential counterarguments
+
+### Challenging Response
+1. **Question Presentation**: Clearly identify points to challenge
+2. **Challenge Basis**: Explain the reasoning behind the challenge
+3. **Counter-example**: Provide specific contradictory evidence
+4. **Alternative Views**: Suggest possible alternative explanations
+
+### Clarification Response
+1. **Clarification Scope**: Define what needs clarification
+2. **Detailed Explanation**: Provide more detailed explanations
+3. **Supplementary Information**: Add necessary background context
+4. **Restate Position**: Re-express core stance
+
+### Response Text Format
+1. Use markdown formatting
+2. Begin with appropriate letter greeting
+3. Structure arguments clearly
+4. End with formal closing
+
+### Letter Format Template
+```
+Dear [Recipient],
+
+[Your argument or response content]
+
+Sincerely,
+[Your Name]
+```

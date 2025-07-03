@@ -3,13 +3,65 @@
 定义不同AI智能体的角色提示词和行为准则
 """
 
-from typing import Dict, Any
+import logging
+from typing import Dict, Any, Optional, List
+from .prompt_loader import PromptLoader, DEFAULT_PROMPT_LOADER
+
+logger = logging.getLogger(__name__)
 
 
 class PromptConfig:
     """提示词配置类，支持动态配置不同角色的提示词"""
     
-    def __init__(self):
+    def __init__(self, loader: Optional[PromptLoader] = None):
+        self.loader = loader or DEFAULT_PROMPT_LOADER
+        self._prompts: Dict[str, str] = {}
+        self._load_all_prompts()
+    
+    def _load_all_prompts(self) -> None:
+        """从文件加载所有提示词"""
+        try:
+            self._prompts = self.loader.load_all_prompts()
+            logger.info("所有提示词加载完成")
+            
+            # 检查关键提示词是否为空，如果为空则使用硬编码回退
+            critical_prompts = ["apollo", "muses", "debate_rules", "response_format"]
+            for key in critical_prompts:
+                if not self._prompts.get(key):
+                    logger.warning(f"关键提示词 {key} 为空，使用硬编码回退")
+                    self._prompts[key] = self._get_hardcoded_prompt(key)
+            
+            # 设置向后兼容映射
+            if not self._prompts.get("logician") and self._prompts.get("apollo"):
+                self._prompts["logician"] = self._prompts["apollo"]
+            if not self._prompts.get("skeptic") and self._prompts.get("muses"):
+                self._prompts["skeptic"] = self._prompts["muses"]
+                    
+        except Exception as e:
+            logger.error(f"加载提示词失败: {e}")
+            # 回退到硬编码提示词
+            self._load_fallback_prompts()
+    
+    def _get_hardcoded_prompt(self, key: str) -> str:
+        """获取硬编码提示词"""
+        if key == "apollo":
+            return self._get_apollo_prompt()
+        elif key == "muses":
+            return self._get_muses_prompt()
+        elif key == "debate_rules":
+            return self._get_debate_rules()
+        elif key == "response_format":
+            return self._get_response_format()
+        elif key == "logician":
+            return self._get_logician_prompt()
+        elif key == "skeptic":
+            return self._get_skeptic_prompt()
+        else:
+            return ""
+    
+    def _load_fallback_prompts(self) -> None:
+        """加载回退的硬编码提示词（用于兼容性）"""
+        logger.warning("使用回退提示词")
         self._prompts = {
             "logician": self._get_logician_prompt(),
             "skeptic": self._get_skeptic_prompt(),
@@ -19,19 +71,56 @@ class PromptConfig:
             "response_format": self._get_response_format()
         }
     
+    def reload_from_files(self) -> None:
+        """重新从文件加载提示词"""
+        logger.info("重新加载提示词...")
+        self.loader.reload_prompts()
+        self._load_all_prompts()
+    
+    def get_prompt_source(self, role: str) -> str:
+        """获取提示词来源（文件路径）"""
+        file_path = self.loader.get_prompt_file_path(role)
+        return file_path if file_path else "硬编码"
+    
     def get_prompt(self, role: str) -> str:
         """获取指定角色的提示词"""
-        if role not in self._prompts:
-            raise ValueError(f"未知角色: {role}")
-        return self._prompts[role]
+        # 首先检查缓存（包括硬编码回退）
+        if role in self._prompts:
+            return self._prompts[role]
+        
+        # 尝试从加载器获取最新内容
+        prompt = self.loader.get_prompt(role)
+        if prompt:
+            self._prompts[role] = prompt  # 缓存起来
+            return prompt
+            
+        # 如果文件不存在，使用硬编码回退
+        hardcoded = self._get_hardcoded_prompt(role)
+        if hardcoded:
+            logger.warning(f"提示词文件不存在，使用硬编码回退: {role}")
+            self._prompts[role] = hardcoded  # 缓存硬编码回退
+            return hardcoded
+        
+        # 都没有则报错
+        logger.error(f"未知角色: {role}")
+        raise ValueError(f"未知角色: {role}")
     
     def update_prompt(self, role: str, prompt: str) -> None:
-        """更新指定角色的提示词"""
+        """更新指定角色的提示词（仅更新内存缓存）"""
         self._prompts[role] = prompt
+        logger.info(f"已更新角色 {role} 的提示词（内存缓存）")
     
     def get_all_prompts(self) -> Dict[str, str]:
         """获取所有角色的提示词"""
-        return self._prompts.copy()
+        # 确保返回最新的提示词
+        current_prompts = {}
+        for key in self._prompts.keys():
+            current_prompts[key] = self.get_prompt(key)
+        return current_prompts
+    
+    def validate_prompts(self) -> List[str]:
+        """验证提示词配置"""
+        return self.loader.validate_prompt_files()
     
     def _get_logician_prompt(self) -> str:
         """原逻辑者角色提示词（已废弃，保留用于兼容性）"""
@@ -207,7 +296,7 @@ Sincerely,
 """
 
 # 默认提示词配置实例
-DEFAULT_PROMPTS = PromptConfig()
+DEFAULT_PROMPTS = PromptConfig(DEFAULT_PROMPT_LOADER)
 
 # 便捷访问函数
 def get_logician_prompt() -> str:
