@@ -89,9 +89,8 @@ class ParticipationMode:
                     # 处理一轮辩论
                     if self.debate_manager.state == DebateState.ACTIVE:
                         try:
+                            # 处理辩论轮次 - AI回复会通过回调自动显示
                             self.debate_manager.process_round()
-                            # 显示最新的消息
-                            self._display_latest_messages()
                             consecutive_errors = 0  # 重置错误计数
                         except Exception as e:
                             self.cli.show_error(f"辩论处理出错: {e}")
@@ -160,9 +159,14 @@ class ParticipationMode:
                 max_rounds=10
             )
             
+            # 设置消息回调，确保AI回复能实时显示
+            self.debate_manager.on_message_sent = self._handle_debate_message
+            
             # 启动辩论（这里我们需要手动开始辩论而不是在后台线程中运行）
             if self.debate_manager.start_debate():
                 self.cli.show_success(f"辩论开始！主题: {topic}")
+                # 显示初始消息
+                self._display_latest_messages()
                 return True
             else:
                 self.cli.show_error("无法启动辩论")
@@ -201,7 +205,10 @@ class ParticipationMode:
     
     def _handle_debate_message(self, message: Message):
         """处理来自辩论管理器的消息"""
+        # 立即显示AI生成的消息
         self.cli.display_message(message)
+        # 更新显示计数器
+        self.displayed_message_count = len(self.debate_manager.get_conversation_history())
 
     # --- 指令处理函数 ---
 
