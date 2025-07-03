@@ -1,5 +1,5 @@
 """
-怀疑者角色实现
+Muses角色实现
 专注于批判思维和质疑反驳的AI智能体
 """
 
@@ -7,18 +7,22 @@ from typing import Optional, List
 from src.agents.base_agent import BaseAgent
 from src.core.ai_client import AIClient
 from src.core.message import MessageType
-from src.config.prompts import get_skeptic_prompt
+from src.config.prompts import get_muses_prompt
 
 
-class Skeptic(BaseAgent):
+class Muses(BaseAgent):
     """
-    怀疑者角色
+    Muses角色
     专注于批判思维和质疑反驳，寻找论证中的漏洞和问题
     """
     
-    def __init__(self, name: str = "怀疑者", ai_client: Optional[AIClient] = None):
+    role_name = "Muses"
+    display_name = "Muses"
+    description = "Creative and challenging AI agent"
+    
+    def __init__(self, name: str = "Muses", ai_client: Optional[AIClient] = None):
         """
-        初始化怀疑者
+        初始化Muses
         
         Args:
             name: 智能体名称
@@ -29,13 +33,13 @@ class Skeptic(BaseAgent):
         
         super().__init__(
             name=name,
-            role_prompt=get_skeptic_prompt(),
+            role_prompt=get_muses_prompt(),
             ai_client=ai_client
         )
         
-        # 怀疑者特有的元数据
+        # Muses特有的元数据
         self.metadata.update({
-            "role": "skeptic",
+            "role": "muses",
             "focus": "critical_thinking",
             "approach": "questioning_challenging"
         })
@@ -46,12 +50,12 @@ class Skeptic(BaseAgent):
         
         Args:
             context: 上下文信息
-            temperature: 生成温度参数（怀疑者使用适中温度保持创造性质疑）
+            temperature: 生成温度参数（Muses使用适中温度保持创造性质疑）
             
         Returns:
             生成的回应内容
         """
-        # 怀疑者使用适中温度以保持创造性和敏锐性
+        # Muses使用适中温度以保持创造性和敏锐性
         skeptical_temperature = min(max(temperature, 0.6), 0.8)
         
         prompt = self._build_prompt(context)
@@ -88,7 +92,7 @@ class Skeptic(BaseAgent):
             质疑内容
         """
         challenge_prompt = f"""
-        作为怀疑者，请对以下论证进行深入质疑：
+        作为Muses，请对以下论证进行深入质疑：
 
         论证内容：{argument}
 
@@ -128,7 +132,7 @@ class Skeptic(BaseAgent):
         statements_text = "\n".join([f"{i+1}. {stmt}" for i, stmt in enumerate(statements)])
         
         contradiction_prompt = f"""
-        作为怀疑者，请分析以下陈述中是否存在矛盾：
+        作为Muses，请分析以下陈述中是否存在矛盾：
 
         陈述：
         {statements_text}
@@ -158,7 +162,7 @@ class Skeptic(BaseAgent):
             反例和分析
         """
         counterexample_prompt = f"""
-        作为怀疑者，请为以下一般性声明寻找反例：
+        作为Muses，请为以下一般性声明寻找反例：
 
         声明：{general_claim}
 
@@ -193,7 +197,7 @@ class Skeptic(BaseAgent):
             对假设的质疑
         """
         assumption_prompt = f"""
-        作为怀疑者，请识别并质疑以下论证中的假设：
+        作为Muses，请识别并质疑以下论证中的假设：
 
         论证：{argument}
 
@@ -224,7 +228,7 @@ class Skeptic(BaseAgent):
             替代解释和分析
         """
         alternative_prompt = f"""
-        作为怀疑者，请为以下解释提出替代的可能性：
+        作为Muses，请为以下解释提出替代的可能性：
 
         当前解释：{explanation}
 
@@ -253,9 +257,9 @@ class Skeptic(BaseAgent):
             质疑性回应
         """
         response_context = f"""
-        逻辑者提出了以下论证：{logical_argument}
+        Apollo提出了以下论证：{logical_argument}
         
-        请以怀疑者的身份，从批判性思维的角度回应这个论证。寻找可能的漏洞、质疑假设、提出反例。
+        请以Muses的身份，从批判性思维的角度回应这个论证。寻找可能的漏洞、质疑假设、提出反例。
         """
         
         return self.generate_response(context=response_context, temperature=0.7)

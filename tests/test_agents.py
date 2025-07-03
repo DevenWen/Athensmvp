@@ -8,8 +8,8 @@ from unittest.mock import Mock, patch
 from datetime import datetime
 
 from src.agents.base_agent import BaseAgent
-from src.agents.logician import Logician
-from src.agents.skeptic import Skeptic
+from src.agents.apollo import Apollo
+from src.agents.muses import Muses
 from src.core.ai_client import AIClient
 from src.core.message import Message, MessageType
 
@@ -155,8 +155,8 @@ class TestBaseAgent:
         assert base_agent.is_active is True
 
 
-class TestLogician:
-    """测试Logician逻辑者角色"""
+class TestApollo:
+    """测试Apollo角色"""
     
     @pytest.fixture
     def mock_ai_client(self):
@@ -166,20 +166,23 @@ class TestLogician:
         return client
     
     @pytest.fixture
-    def logician(self, mock_ai_client):
-        """创建逻辑者实例"""
-        return Logician("测试逻辑者", mock_ai_client)
+    def apollo(self, mock_ai_client):
+        """创建Apollo实例"""
+        return Apollo("测试Apollo", mock_ai_client)
     
-    def test_logician_initialization(self, logician):
-        """测试逻辑者初始化"""
-        assert logician.name == "测试逻辑者"
-        assert logician.metadata["role"] == "logician"
-        assert logician.metadata["focus"] == "logical_reasoning"
-        assert logician.metadata["approach"] == "supportive_argumentation"
+    def test_apollo_initialization(self, apollo):
+        """测试Apollo初始化"""
+        assert apollo.name == "测试Apollo"
+        assert apollo.role_name == "Apollo"
+        assert apollo.display_name == "Apollo"
+        assert apollo.description == "Logic and reason focused AI agent"
+        assert apollo.metadata["role"] == "apollo"
+        assert apollo.metadata["focus"] == "logical_reasoning"
+        assert apollo.metadata["approach"] == "supportive_argumentation"
     
-    def test_generate_response(self, logician, mock_ai_client):
-        """测试生成回应"""
-        response = logician.generate_response("测试上下文")
+    def test_apollo_generate_response(self, apollo, mock_ai_client):
+        """测试Apollo生成回应"""
+        response = apollo.generate_response("测试上下文")
         
         assert response == "逻辑性回应"
         mock_ai_client.generate_response.assert_called_once()
@@ -188,35 +191,35 @@ class TestLogician:
         call_args = mock_ai_client.generate_response.call_args
         assert call_args[1]["temperature"] <= 0.6
     
-    def test_analyze_argument(self, logician, mock_ai_client):
-        """测试论证分析"""
+    def test_apollo_analyze_argument(self, apollo, mock_ai_client):
+        """测试Apollo论证分析"""
         mock_ai_client.generate_response.return_value = "论证分析结果"
         
-        result = logician.analyze_argument("测试论证")
+        result = apollo.analyze_argument("测试论证")
         assert result == "论证分析结果"
         mock_ai_client.generate_response.assert_called()
     
-    def test_build_supporting_argument(self, logician, mock_ai_client):
-        """测试构建支持性论证"""
+    def test_apollo_build_supporting_argument(self, apollo, mock_ai_client):
+        """测试Apollo构建支持性论证"""
         mock_ai_client.generate_response.return_value = "支持性论证"
         
-        result = logician.build_supporting_argument("话题", "立场")
+        result = apollo.build_supporting_argument("话题", "立场")
         assert result == "支持性论证"
         
         # 检查是否发送了消息
-        assert len(logician.conversation_history) == 1
-        assert logician.conversation_history[0].message_type == MessageType.ARGUMENT
+        assert len(apollo.conversation_history) == 1
+        assert apollo.conversation_history[0].message_type == MessageType.ARGUMENT
     
-    def test_respond_to_skepticism(self, logician, mock_ai_client):
-        """测试回应怀疑"""
+    def test_apollo_respond_to_skepticism(self, apollo, mock_ai_client):
+        """测试Apollo回应质疑"""
         mock_ai_client.generate_response.return_value = "理性回应"
         
-        result = logician.respond_to_skepticism("怀疑质疑")
+        result = apollo.respond_to_skepticism("Muses的质疑")
         assert result == "理性回应"
 
 
-class TestSkeptic:
-    """测试Skeptic怀疑者角色"""
+class TestMuses:
+    """测试Muses角色"""
     
     @pytest.fixture
     def mock_ai_client(self):
@@ -226,20 +229,23 @@ class TestSkeptic:
         return client
     
     @pytest.fixture
-    def skeptic(self, mock_ai_client):
-        """创建怀疑者实例"""
-        return Skeptic("测试怀疑者", mock_ai_client)
+    def muses(self, mock_ai_client):
+        """创建Muses实例"""
+        return Muses("测试Muses", mock_ai_client)
     
-    def test_skeptic_initialization(self, skeptic):
-        """测试怀疑者初始化"""
-        assert skeptic.name == "测试怀疑者"
-        assert skeptic.metadata["role"] == "skeptic"
-        assert skeptic.metadata["focus"] == "critical_thinking"
-        assert skeptic.metadata["approach"] == "questioning_challenging"
+    def test_muses_initialization(self, muses):
+        """测试Muses初始化"""
+        assert muses.name == "测试Muses"
+        assert muses.role_name == "Muses"
+        assert muses.display_name == "Muses"
+        assert muses.description == "Creative and challenging AI agent"
+        assert muses.metadata["role"] == "muses"
+        assert muses.metadata["focus"] == "critical_thinking"
+        assert muses.metadata["approach"] == "questioning_challenging"
     
-    def test_generate_response(self, skeptic, mock_ai_client):
-        """测试生成回应"""
-        response = skeptic.generate_response("测试上下文")
+    def test_muses_generate_response(self, muses, mock_ai_client):
+        """测试Muses生成回应"""
+        response = muses.generate_response("测试上下文")
         
         assert response == "质疑性回应"
         mock_ai_client.generate_response.assert_called_once()
@@ -249,46 +255,46 @@ class TestSkeptic:
         temperature = call_args[1]["temperature"]
         assert 0.6 <= temperature <= 0.8
     
-    def test_challenge_argument(self, skeptic, mock_ai_client):
-        """测试质疑论证"""
+    def test_muses_challenge_argument(self, muses, mock_ai_client):
+        """测试Muses质疑论证"""
         mock_ai_client.generate_response.return_value = "质疑内容"
         
-        result = skeptic.challenge_argument("论证内容")
+        result = muses.challenge_argument("论证内容")
         assert result == "质疑内容"
         
         # 检查是否发送了消息
-        assert len(skeptic.conversation_history) == 1
-        assert skeptic.conversation_history[0].message_type == MessageType.COUNTER
+        assert len(muses.conversation_history) == 1
+        assert muses.conversation_history[0].message_type == MessageType.COUNTER
     
-    def test_find_contradictions(self, skeptic, mock_ai_client):
-        """测试寻找矛盾"""
+    def test_muses_find_contradictions(self, muses, mock_ai_client):
+        """测试Muses寻找矛盾"""
         mock_ai_client.generate_response.return_value = "矛盾分析"
         
         statements = ["陈述1", "陈述2", "陈述3"]
-        result = skeptic.find_contradictions(statements)
+        result = muses.find_contradictions(statements)
         assert result == "矛盾分析"
     
-    def test_propose_counterexamples(self, skeptic, mock_ai_client):
-        """测试提出反例"""
+    def test_muses_propose_counterexamples(self, muses, mock_ai_client):
+        """测试Muses提出反例"""
         mock_ai_client.generate_response.return_value = "反例分析"
         
-        result = skeptic.propose_counterexamples("一般性声明")
+        result = muses.propose_counterexamples("一般性声明")
         assert result == "反例分析"
         
         # 检查是否发送了消息
-        assert len(skeptic.conversation_history) == 1
-        assert skeptic.conversation_history[0].message_type == MessageType.COUNTER
+        assert len(muses.conversation_history) == 1
+        assert muses.conversation_history[0].message_type == MessageType.COUNTER
     
-    def test_respond_to_logic(self, skeptic, mock_ai_client):
-        """测试回应逻辑论证"""
+    def test_muses_respond_to_logic(self, muses, mock_ai_client):
+        """测试Muses回应逻辑论证"""
         mock_ai_client.generate_response.return_value = "批判性回应"
         
-        result = skeptic.respond_to_logic("逻辑论证")
+        result = muses.respond_to_logic("Apollo的论证")
         assert result == "批判性回应"
 
 
-class TestAgentInteraction:
-    """测试智能体间的交互"""
+class TestApolloMusesInteraction:
+    """测试Apollo和Muses之间的交互"""
     
     @pytest.fixture
     def mock_ai_client(self):
@@ -297,34 +303,77 @@ class TestAgentInteraction:
         return client
     
     @pytest.fixture
-    def agents(self, mock_ai_client):
-        """创建测试智能体对"""
-        logician = Logician("逻辑者", mock_ai_client)
-        skeptic = Skeptic("怀疑者", mock_ai_client)
-        return logician, skeptic
+    def new_agents(self, mock_ai_client):
+        """创建新的测试智能体对"""
+        apollo = Apollo("Apollo", mock_ai_client)
+        muses = Muses("Muses", mock_ai_client)
+        return apollo, muses
     
-    def test_message_exchange(self, agents):
-        """测试消息交换"""
-        logician, skeptic = agents
+    def test_new_message_exchange(self, new_agents):
+        """测试Apollo和Muses的消息交换"""
+        apollo, muses = new_agents
         
-        # 逻辑者发送消息
-        msg1 = logician.send_message("逻辑论证", "怀疑者")
+        # Apollo发送消息
+        msg1 = apollo.send_message("逻辑论证", "Muses")
         
-        # 怀疑者接收消息
-        skeptic.receive_message(msg1)
+        # Muses接收消息
+        muses.receive_message(msg1)
         
-        # 怀疑者回应
-        msg2 = skeptic.send_message("质疑回应", "逻辑者")
+        # Muses回应
+        msg2 = muses.send_message("质疑回应", "Apollo")
         
-        # 逻辑者接收回应
-        logician.receive_message(msg2)
+        # Apollo接收回应
+        apollo.receive_message(msg2)
         
         # 验证对话历史
-        assert len(logician.conversation_history) == 2
-        assert len(skeptic.conversation_history) == 2
+        assert len(apollo.conversation_history) == 2
+        assert len(muses.conversation_history) == 2
         
         # 验证消息内容
-        assert logician.conversation_history[0].content == "逻辑论证"
-        assert logician.conversation_history[1].content == "质疑回应"
-        assert skeptic.conversation_history[0].content == "逻辑论证"
-        assert skeptic.conversation_history[1].content == "质疑回应"
+        assert apollo.conversation_history[0].content == "逻辑论证"
+        assert apollo.conversation_history[1].content == "质疑回应"
+        assert muses.conversation_history[0].content == "逻辑论证"
+        assert muses.conversation_history[1].content == "质疑回应"
+
+
+class TestLetterFormat:
+    """测试书信格式功能"""
+    
+    def test_message_letter_format(self):
+        """测试消息书信格式化"""
+        msg = Message(
+            content="这是一条测试消息",
+            sender="Apollo",
+            recipient="Muses",
+            message_type=MessageType.ARGUMENT
+        )
+        
+        letter_format = msg.format_as_letter()
+        
+        assert "致 Muses，" in letter_format
+        assert "这是一条测试消息" in letter_format
+        assert "此致\nApollo" in letter_format
+    
+    def test_letter_greeting_apollo_to_muses(self):
+        """测试Apollo给Muses的问候语"""
+        msg = Message(content="测试", sender="Apollo", message_type=MessageType.ARGUMENT)
+        greeting = msg.get_letter_greeting("Muses")
+        assert greeting == "致 Muses，"
+    
+    def test_letter_greeting_muses_to_apollo(self):
+        """测试Muses给Apollo的问候语"""
+        msg = Message(content="测试", sender="Muses", message_type=MessageType.COUNTER)
+        greeting = msg.get_letter_greeting("Apollo")
+        assert greeting == "致 Apollo，"
+    
+    def test_letter_greeting_user(self):
+        """测试用户的问候语"""
+        msg = Message(content="测试", sender="用户", message_type=MessageType.USER_INPUT)
+        greeting = msg.get_letter_greeting("Apollo")
+        assert greeting == "致 Apollo，"
+    
+    def test_letter_signature(self):
+        """测试书信签名"""
+        msg = Message(content="测试", sender="Apollo", message_type=MessageType.ARGUMENT)
+        signature = msg.get_letter_signature()
+        assert signature == "此致\nApollo"

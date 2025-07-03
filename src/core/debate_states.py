@@ -75,7 +75,7 @@ class DebateConfig:
     # 协商检测配置
     CONSENSUS_KEYWORDS_ZH = [
         "同意你的结论", "我同意", "赞同你的观点", "接受你的结论", 
-        "你说得对", "我认为你是对的", "我接受", "同意这个观点"
+        "你说得对", "我认为你是对的", "我接受", "同意这个观点", "同意你的观点"
     ]
     CONSENSUS_KEYWORDS_EN = [
         "I agree with your conclusion", "I agree", "you are right", "I accept",

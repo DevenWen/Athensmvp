@@ -4,12 +4,12 @@
 """
 
 from .base_agent import BaseAgent, Message
-from .logician import Logician
-from .skeptic import Skeptic
+from .apollo import Apollo
+from .muses import Muses
 
 __all__ = [
     "BaseAgent",
     "Message", 
-    "Logician",
-    "Skeptic"
+    "Apollo",
+    "Muses"
 ]

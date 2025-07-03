@@ -126,17 +126,17 @@ class TestCommandProcessor:
         """测试@提及解析"""
         processor = CommandProcessor()
         
-        # 测试有效的@提及
-        result = processor.parse_command("@logician 这是给逻辑者的消息")
+                # 测试有效的@提及
+        result = processor.parse_command("@apollo 这是给逻辑者的消息")
         assert result.command_type == CommandType.MENTION
-        assert result.target == "logician"
+        assert result.target == "apollo"
         assert result.content == "这是给逻辑者的消息"
         assert result.is_valid is True
         
         # 测试别名@提及
         result = processor.parse_command("@逻辑者 这是中文别名")
         assert result.command_type == CommandType.MENTION
-        assert result.target == "logician"
+        assert result.target == "apollo"
         assert result.content == "这是中文别名"
         assert result.is_valid is True
         

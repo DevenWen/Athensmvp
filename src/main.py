@@ -4,8 +4,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from src.core.ai_client import AIClient
 from src.core.debate_manager import DebateManager
-from src.agents.logician import Logician
-from src.agents.skeptic import Skeptic
+from src.agents.apollo import Apollo
+from src.agents.muses import Muses
 from src.config.settings import settings
 from src.ui.cli_interface import CLIInterface
 from src.ui.participation_mode import ParticipationMode
@@ -19,13 +19,13 @@ def run_demo_debate():
         ai_client = AIClient()
         
         # 创建智能体
-        logician = Logician(ai_client=ai_client)
-        skeptic = Skeptic(ai_client=ai_client)
+        apollo = Apollo(ai_client=ai_client)
+        muses = Muses(ai_client=ai_client)
         
         # 创建辩论管理器
         manager = DebateManager(
-            logician=logician,
-            skeptic=skeptic,
+            apollo=apollo,
+            muses=muses,
             topic="人工智能技术的发展前景",
             max_rounds=2
         )
@@ -136,12 +136,12 @@ def run_example_debates():
     try:
         # 创建专门的示例辩论
         ai_client = AIClient()
-        logician = Logician(ai_client=ai_client)
-        skeptic = Skeptic(ai_client=ai_client)
+        apollo = Apollo(ai_client=ai_client)
+        muses = Muses(ai_client=ai_client)
         
         manager = DebateManager(
-            logician=logician,
-            skeptic=skeptic,
+            apollo=apollo,
+            muses=muses,
             topic=selected_topic,
             max_rounds=3  # 示例用较少轮次
         )
@@ -188,8 +188,8 @@ def show_help_info():
 • `/clear` - 清空屏幕
 
 ## @提及功能
-• `@logician <消息>` - 向逻辑者发送消息
-• `@skeptic <消息>` - 向怀疑者发送消息
+• `@apollo <消息>` - 向Apollo发送消息
+• `@muses <消息>` - 向Muses发送消息
 • `@both <消息>` - 向两个智能体发送消息
 
 ## 可用主题

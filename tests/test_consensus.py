@@ -27,8 +27,8 @@ class TestConsensusDetection(unittest.TestCase):
         
         # 创建辩论管理器
         self.debate_manager = DebateManager(
-            logician=self.mock_logician,
-            skeptic=self.mock_skeptic,
+            apollo=self.mock_logician,
+            muses=self.mock_skeptic,
             topic="测试话题",
             max_rounds=5
         )
@@ -328,8 +328,8 @@ class TestConsensusIntegration(unittest.TestCase):
         self.mock_skeptic.name = "Skeptic"
         
         self.debate_manager = DebateManager(
-            logician=self.mock_logician,
-            skeptic=self.mock_skeptic,
+            apollo=self.mock_logician,
+            muses=self.mock_skeptic,
             topic="集成测试话题"
         )
     

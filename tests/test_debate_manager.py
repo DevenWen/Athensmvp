@@ -15,8 +15,8 @@ from src.core.debate_states import (
 )
 from src.core.message import Message, MessageType
 from src.agents.base_agent import BaseAgent
-from src.agents.logician import Logician
-from src.agents.skeptic import Skeptic
+from src.agents.apollo import Apollo
+from src.agents.muses import Muses as Skeptic
 
 
 class MockAgent(BaseAgent):
@@ -234,8 +234,8 @@ class TestDebateManager:
         skeptic = MockAgent("怀疑者")
         
         manager = DebateManager(
-            logician=logician,
-            skeptic=skeptic,
+            apollo=logician,
+            muses=skeptic,
             topic="人工智能的发展前景",
             max_rounds=5
         )
@@ -252,7 +252,7 @@ class TestDebateManager:
         """测试使用默认参数创建辩论管理器"""
         manager = DebateManager(topic="测试话题")
         
-        assert isinstance(manager.logician, Logician)
+        assert isinstance(manager.logician, Apollo)
         assert isinstance(manager.skeptic, Skeptic)
         assert manager.topic == "测试话题"
         assert manager.max_rounds == DebateConfig.DEFAULT_MAX_ROUNDS
@@ -516,7 +516,7 @@ class TestDebateManager:
         skeptic.name = "怀疑者"
         skeptic.generate_response.side_effect = Exception("AI服务异常")
         
-        manager = DebateManager(logician, skeptic, "测试话题")
+        manager = DebateManager(logician, skeptic, "��试话题")
         manager.start_debate()
         
         # 处理轮次应该捕获异常并终止辩论
@@ -626,7 +626,7 @@ class TestDebateManagerIntegration:
         messages = [e for e in all_events if e[0] == "message"]
         
         assert len(state_changes) >= 1  # 至少有准备->活跃的转换
-        assert len(messages) >= 2  # 至少有初始论证和一次回应
+        assert len(messages) >= 2  # 至少��初始论证和一次回应
         
         # 验证辩论总结完整性
         summary = manager.get_debate_summary()

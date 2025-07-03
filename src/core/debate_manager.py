@@ -21,8 +21,8 @@ from src.core.context_manager import ContextManager
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.agents.base_agent import BaseAgent
-    from src.agents.logician import Logician
-    from src.agents.skeptic import Skeptic
+    from src.agents.apollo import Apollo
+    from src.agents.muses import Muses
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +34,8 @@ class DebateManager:
     """
     
     def __init__(self, 
-                 logician: Optional['BaseAgent'] = None,
-                 skeptic: Optional['BaseAgent'] = None,
+                 apollo: Optional['BaseAgent'] = None,
+                 muses: Optional['BaseAgent'] = None,
                  topic: str = "",
                  max_rounds: int = DebateConfig.DEFAULT_MAX_ROUNDS,
                  round_timeout: int = DebateConfig.DEFAULT_ROUND_TIMEOUT):
@@ -43,20 +43,24 @@ class DebateManager:
         初始化辩论管理器
         
         Args:
-            logician: 逻辑者智能体
-            skeptic: 怀疑者智能体
+            apollo: Apollo智能体
+            muses: Muses智能体
             topic: 辩论话题
             max_rounds: 最大轮次数
             round_timeout: 每轮超时时间（秒）
         """
         # 运行时导入避免循环依赖
-        if logician is None or skeptic is None:
-            from src.agents.logician import Logician
-            from src.agents.skeptic import Skeptic
+        if apollo is None or muses is None:
+            from src.agents.apollo import Apollo
+            from src.agents.muses import Muses
         
         # 智能体
-        self.logician = logician or Logician()
-        self.skeptic = skeptic or Skeptic()
+        self.apollo = apollo or Apollo()
+        self.muses = muses or Muses()
+        
+        # 向后兼容的属性别名
+        self.logician = self.apollo
+        self.skeptic = self.muses
         
         # 辩论配置
         self.topic = topic
@@ -66,7 +70,7 @@ class DebateManager:
         # 状态管理
         self.state = DebateState.PREPARING
         self.current_round = 0
-        self.current_speaker = self.logician  # 逻辑者先发言
+        self.current_speaker = self.apollo  # Apollo先发言
         self.termination_reason: Optional[TerminationReason] = None
         self.consensus_state = ConsensusState.ONGOING
         
@@ -92,7 +96,7 @@ class DebateManager:
         
     def _setup_communication(self):
         """设置通信通道"""
-        participants = [self.logician.name, self.skeptic.name]
+        participants = [self.apollo.name, self.muses.name]
         self.communication.create_channel(self.debate_channel_id, participants)
         
         # 添加消息监听器
@@ -153,44 +157,44 @@ class DebateManager:
             
         # 开始第一轮
         self.current_round = 1
-        self.current_speaker = self.logician
+        self.current_speaker = self.apollo
         
         # 创建第一轮
-        round_obj = DebateRound(self.current_round, self.logician.name)
+        round_obj = DebateRound(self.current_round, self.apollo.name)
         self.rounds.append(round_obj)
         
         if self.on_round_start:
-            self.on_round_start(self.current_round, self.logician.name)
+            self.on_round_start(self.current_round, self.apollo.name)
             
         # 发送初始论证
         try:
             if initial_statement:
                 # 使用提供的初始论证
                 message = create_argument_message(
-                    self.logician.name, 
+                    self.apollo.name, 
                     initial_statement, 
-                    self.skeptic.name
+                    self.muses.name
                 )
             else:
                 # 让逻辑者生成初始论证
                 context = f"话题: {self.topic}\n请提出你的初始论证。"
-                response = self.logician.generate_response(context)
+                response = self.apollo.generate_response(context)
                 message = create_argument_message(
-                    self.logician.name,
+                    self.apollo.name,
                     response,
-                    self.skeptic.name
+                    self.muses.name
                 )
                 
             # 发送消息
             success = self.communication.send_message(message, self.debate_channel_id)
             if success:
                 round_obj.add_message(message.id)
-                self.metrics.add_message(self.logician.name)
+                self.metrics.add_message(self.apollo.name)
                 
                 # 切换到怀疑者
-                self.current_speaker = self.skeptic
+                self.current_speaker = self.muses
                 
-                logger.info(f"Debate started with initial statement from {self.logician.name}")
+                logger.info(f"Debate started with initial statement from {self.apollo.name}")
                 return True
             else:
                 logger.error("Failed to send initial statement")
@@ -273,7 +277,7 @@ class DebateManager:
             
     def _get_other_speaker(self) -> 'BaseAgent':
         """获取另一个发言者"""
-        return self.skeptic if self.current_speaker == self.logician else self.logician
+        return self.muses if self.current_speaker == self.apollo else self.apollo
         
     def _should_start_new_round(self) -> bool:
         """判断是否应该开始新轮次"""
@@ -464,7 +468,7 @@ class DebateManager:
             "consensus_state": self.consensus_state.value,
             "started_at": self.metrics.start_time.isoformat(),
             "duration": self.metrics.get_duration().total_seconds(),
-            "participants": [self.logician.name, self.skeptic.name]
+            "participants": [self.apollo.name, self.muses.name]
         }
         
     def get_conversation_history(self) -> List[Message]:

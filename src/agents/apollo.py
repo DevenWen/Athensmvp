@@ -1,5 +1,5 @@
 """
-逻辑者角色实现
+Apollo角色实现
 专注于逻辑论证和支持观点的AI智能体
 """
 
@@ -7,18 +7,22 @@ from typing import Optional
 from src.agents.base_agent import BaseAgent
 from src.core.ai_client import AIClient
 from src.core.message import MessageType
-from src.config.prompts import get_logician_prompt
+from src.config.prompts import get_apollo_prompt
 
 
-class Logician(BaseAgent):
+class Apollo(BaseAgent):
     """
-    逻辑者角色
+    Apollo角色
     专注于逻辑论证和支持观点，倾向于寻找证据和理性分析
     """
     
-    def __init__(self, name: str = "逻辑者", ai_client: Optional[AIClient] = None):
+    role_name = "Apollo"
+    display_name = "Apollo"
+    description = "Logic and reason focused AI agent"
+    
+    def __init__(self, name: str = "Apollo", ai_client: Optional[AIClient] = None):
         """
-        初始化逻辑者
+        初始化Apollo
         
         Args:
             name: 智能体名称
@@ -29,13 +33,13 @@ class Logician(BaseAgent):
         
         super().__init__(
             name=name,
-            role_prompt=get_logician_prompt(),
+            role_prompt=get_apollo_prompt(),
             ai_client=ai_client
         )
         
-        # 逻辑者特有的元数据
+        # Apollo特有的元数据
         self.metadata.update({
-            "role": "logician",
+            "role": "apollo",
             "focus": "logical_reasoning",
             "approach": "supportive_argumentation"
         })
@@ -46,12 +50,12 @@ class Logician(BaseAgent):
         
         Args:
             context: 上下文信息
-            temperature: 生成温度参数（逻辑者使用较低温度保持理性）
+            temperature: 生成温度参数（Apollo使用较低温度保持理性）
             
         Returns:
             生成的回应内容
         """
-        # 逻辑者使用较低的温度以保持理性和一致性
+        # Apollo使用较低的温度以保持理性和一致性
         logical_temperature = min(temperature, 0.6)
         
         prompt = self._build_prompt(context)
@@ -88,7 +92,7 @@ class Logician(BaseAgent):
             分析结果
         """
         analysis_prompt = f"""
-        作为逻辑者，请分析以下论证的逻辑结构：
+        作为Apollo，请分析以下论证的逻辑结构：
 
         论证内容：{argument}
 
@@ -118,7 +122,7 @@ class Logician(BaseAgent):
             支持性论证
         """
         support_prompt = f"""
-        作为逻辑者，请为以下立场构建一个有力的支持性论证：
+        作为Apollo，请为以下立场构建一个有力的支持性论证：
 
         话题：{topic}
         立场：{position}
@@ -154,7 +158,7 @@ class Logician(BaseAgent):
             优化后的论证
         """
         refine_prompt = f"""
-        作为逻辑者，请优化以下论证的逻辑性和说服力：
+        作为Apollo，请优化以下论证的逻辑性和说服力：
 
         原始论证：{rough_argument}
 
@@ -183,9 +187,9 @@ class Logician(BaseAgent):
             回应内容
         """
         response_context = f"""
-        怀疑者提出了以下质疑：{skeptical_challenge}
+        Muses提出了以下质疑：{skeptical_challenge}
         
-        请以逻辑者的身份，理性地回应这个质疑。保持开放心态，但也要为你的观点提供有力的辩护。
+        请以Apollo的身份，理性地回应这个质疑。保持开放心态，但也要为你的观点提供有力的辩护。
         """
         
         return self.generate_response(context=response_context, temperature=0.6)

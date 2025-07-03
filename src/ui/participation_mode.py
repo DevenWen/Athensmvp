@@ -9,8 +9,8 @@ from typing import Optional
 from src.core.ai_client import AIClient
 from src.core.debate_manager import DebateManager
 from src.core.debate_states import DebateState
-from src.agents.logician import Logician
-from src.agents.skeptic import Skeptic
+from src.agents.apollo import Apollo
+from src.agents.muses import Muses
 from src.core.message import Message, MessageType
 from src.ui.cli_interface import CLIInterface
 from src.ui.command_processor import CommandProcessor, ParsedCommand, CommandType
@@ -24,8 +24,12 @@ class ParticipationMode:
         self.cmd_processor = CommandProcessor()
         self.ai_client = AIClient()
         
-        self.logician = Logician(self.ai_client)
-        self.skeptic = Skeptic(self.ai_client)
+        self.apollo = Apollo(self.ai_client)
+        self.muses = Muses(self.ai_client)
+        
+        # 向后兼容的别名
+        self.logician = self.apollo
+        self.skeptic = self.muses
         
         self.debate_manager: Optional[DebateManager] = None
         self.debate_thread: Optional[threading.Thread] = None
@@ -43,6 +47,9 @@ class ParticipationMode:
         self.cmd_processor.register_command_handler("theme", self._handle_theme)
         self.cmd_processor.register_command_handler("clear", self._handle_clear)
         
+        self.cmd_processor.register_mention_handler("apollo", self._handle_mention)
+        self.cmd_processor.register_mention_handler("muses", self._handle_mention)
+        # 向后兼容
         self.cmd_processor.register_mention_handler("logician", self._handle_mention)
         self.cmd_processor.register_mention_handler("skeptic", self._handle_mention)
         self.cmd_processor.register_mention_handler("both", self._handle_mention)
@@ -147,8 +154,8 @@ class ParticipationMode:
         """初始化并启动辩论"""
         try:
             self.debate_manager = DebateManager(
-                logician=self.logician,
-                skeptic=self.skeptic,
+                apollo=self.apollo,
+                muses=self.muses,
                 topic=topic,
                 max_rounds=10
             )

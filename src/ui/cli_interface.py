@@ -31,8 +31,8 @@ class CLIInterface:
             "name": "默认主题",
             "title": "bold blue",
             "header": "bold green", 
-            "logician": "blue",
-            "skeptic": "red",
+            "apollo": "blue",
+            "muses": "red",
             "user": "yellow",
             "system": "dim white",
             "success": "green",
@@ -40,14 +40,14 @@ class CLIInterface:
             "warning": "yellow",
             "info": "cyan",
             "panel_title": "blue",
-            "panel_border": {"logician": "blue", "skeptic": "red", "user": "yellow", "system": "white"}
+            "panel_border": {"apollo": "blue", "muses": "red", "user": "yellow", "system": "white"}
         },
         "dark": {
             "name": "深色主题",
             "title": "bold bright_white",
             "header": "bold bright_green", 
-            "logician": "bright_cyan",
-            "skeptic": "bright_magenta",
+            "apollo": "bright_cyan",
+            "muses": "bright_magenta",
             "user": "bright_yellow",
             "system": "dim bright_white",
             "success": "bright_green",
@@ -55,14 +55,14 @@ class CLIInterface:
             "warning": "bright_yellow",
             "info": "bright_blue",
             "panel_title": "bright_white",
-            "panel_border": {"logician": "bright_cyan", "skeptic": "bright_magenta", "user": "bright_yellow", "system": "bright_white"}
+            "panel_border": {"apollo": "bright_cyan", "muses": "bright_magenta", "user": "bright_yellow", "system": "bright_white"}
         },
         "forest": {
             "name": "森林主题",
             "title": "bold green",
             "header": "bold dark_green", 
-            "logician": "dark_green",
-            "skeptic": "dark_orange3",
+            "apollo": "dark_green",
+            "muses": "dark_orange3",
             "user": "gold1",
             "system": "dim grey70",
             "success": "green",
@@ -70,14 +70,14 @@ class CLIInterface:
             "warning": "orange3",
             "info": "dark_turquoise",
             "panel_title": "green",
-            "panel_border": {"logician": "dark_green", "skeptic": "dark_orange3", "user": "gold1", "system": "grey70"}
+            "panel_border": {"apollo": "dark_green", "muses": "dark_orange3", "user": "gold1", "system": "grey70"}
         },
         "ocean": {
             "name": "海洋主题",
             "title": "bold deep_sky_blue1",
             "header": "bold blue", 
-            "logician": "deep_sky_blue1",
-            "skeptic": "medium_purple",
+            "apollo": "deep_sky_blue1",
+            "muses": "medium_purple",
             "user": "turquoise2",
             "system": "dim slate_blue1",
             "success": "sea_green2",
@@ -85,14 +85,14 @@ class CLIInterface:
             "warning": "orange1",
             "info": "cornflower_blue",
             "panel_title": "deep_sky_blue1",
-            "panel_border": {"logician": "deep_sky_blue1", "skeptic": "medium_purple", "user": "turquoise2", "system": "slate_blue1"}
+            "panel_border": {"apollo": "deep_sky_blue1", "muses": "medium_purple", "user": "turquoise2", "system": "slate_blue1"}
         },
         "sunset": {
             "name": "日落主题",
             "title": "bold orange1",
             "header": "bold red", 
-            "logician": "orange1",
-            "skeptic": "red3",
+            "apollo": "orange1",
+            "muses": "red3",
             "user": "yellow",
             "system": "dim grey70",
             "success": "green",
@@ -100,14 +100,14 @@ class CLIInterface:
             "warning": "orange3",
             "info": "magenta",
             "panel_title": "orange1",
-            "panel_border": {"logician": "orange1", "skeptic": "red3", "user": "yellow", "system": "grey70"}
+            "panel_border": {"apollo": "orange1", "muses": "red3", "user": "yellow", "system": "grey70"}
         },
         "minimal": {
             "name": "极简主题",
             "title": "bold white",
             "header": "bold white", 
-            "logician": "white",
-            "skeptic": "grey70",
+            "apollo": "white",
+            "muses": "grey70",
             "user": "bright_white",
             "system": "dim grey50",
             "success": "white",
@@ -115,7 +115,7 @@ class CLIInterface:
             "warning": "white",
             "info": "grey70",
             "panel_title": "white",
-            "panel_border": {"logician": "white", "skeptic": "grey70", "user": "bright_white", "system": "grey50"}
+            "panel_border": {"apollo": "white", "muses": "grey70", "user": "bright_white", "system": "grey50"}
         }
     }
     
@@ -212,16 +212,16 @@ class CLIInterface:
         sender_name = self._get_sender_display_name(message.sender)
         
         # 根据发送者选择样式
-        if sender_name in ["逻辑者", "Logician"] or "logician" in sender_name.lower():
-            style = self.theme["logician"]
+        if sender_name in ["Apollo", "逻辑者", "Logician"] or "apollo" in sender_name.lower() or "logician" in sender_name.lower():
+            style = self.theme["apollo"]
             icon = "🤔"
-            border_style = self.theme["panel_border"]["logician"]
-            display_name = "逻辑者"
-        elif sender_name in ["怀疑者", "Skeptic"] or "skeptic" in sender_name.lower():
-            style = self.theme["skeptic"] 
+            border_style = self.theme["panel_border"]["apollo"]
+            display_name = "Apollo"
+        elif sender_name in ["Muses", "怀疑者", "Skeptic"] or "muses" in sender_name.lower() or "skeptic" in sender_name.lower():
+            style = self.theme["muses"] 
             icon = "🤨"
-            border_style = self.theme["panel_border"]["skeptic"]
-            display_name = "怀疑者"
+            border_style = self.theme["panel_border"]["muses"]
+            display_name = "Muses"
         elif sender_name in ["用户", "User"] or "user" in sender_name.lower():
             style = self.theme["user"]
             icon = "👤"
@@ -295,7 +295,7 @@ class CLIInterface:
             theme_table.add_row(
                 f"[{i}]",
                 config["name"],
-                f"智能体: {config['logician']}, {config['skeptic']}, {config['user']}",
+                f"智能体: {config['apollo']}, {config['muses']}, {config['user']}",
                 current
             )
         
@@ -381,7 +381,7 @@ def demo_cli():
     cli.console.print(Panel("消息显示效果演示", title="📝 Demo", border_style=cli.theme["panel_title"]))
     
     # 创建示例消息（标准Markdown格式）
-    logician_msg = Message(
+    apollo_msg = Message(
         """# Elixir容错性分析
 
 基于**Actor模型**，Elixir确实具有*出色的容错性*和并发处理能力。
@@ -407,11 +407,11 @@ def demo_cli():
 {:ok, pid} = GenServer.start_link(MyServer, [])
 GenServer.call(pid, :get_state)
 ```""",
-        "逻辑者",
+        "Apollo",
         MessageType.ARGUMENT
     )
     
-    skeptic_msg = Message(
+    muses_msg = Message(
         """## 对Actor模型的质疑
 
 虽然**Actor模型**确实有优势，但这种说法过于*绝对*。
@@ -439,12 +439,12 @@ GenServer.call(pid, :get_state)
 | CPU密集 | ❌ | ✅ |
 | I/O密集 | ✅ | ❌ |
 | 高并发 | ✅ | ❌ |""",
-        "怀疑者", 
+        "Muses", 
         MessageType.COUNTER
     )
     
     user_msg = Message(
-        """@skeptic 关于性能开销的问题很有意思！
+        """@muses 关于性能开销的问题很有意思！
 
 > 能否提供一个**具体的基准测试**数据来支撑你的观点？
 
@@ -461,9 +461,9 @@ GenServer.call(pid, :get_state)
     system_msg = Message(
         """### 系统通知
 
-**状态更新**：检测到用户提及 `@skeptic`
+**状态更新**：检测到用户提及 `@muses`
 
-- ✅ 已通知怀疑者智能体
+- ✅ 已通知Muses智能体
 - 📊 当前辩论状态：*活跃中*
 - ⏱️ 响应时间：< 100ms""",
         "系统",
@@ -471,8 +471,8 @@ GenServer.call(pid, :get_state)
     )
     
     # 显示消息
-    cli.display_message(logician_msg)
-    cli.display_message(skeptic_msg)
+    cli.display_message(apollo_msg)
+    cli.display_message(muses_msg)
     cli.display_message(user_msg)
     cli.display_message(system_msg)
     

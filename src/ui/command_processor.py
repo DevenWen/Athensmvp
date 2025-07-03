@@ -14,7 +14,7 @@ from src.core.message import Message, MessageType
 class CommandType(Enum):
     """指令类型枚举"""
     SYSTEM_COMMAND = "system_command"     # 系统指令 (/pause, /resume等)
-    MENTION = "mention"                   # @提及 (@logician, @skeptic)
+    MENTION = "mention"                   # @提及 (@apollo, @muses)
     REGULAR_MESSAGE = "regular_message"   # 普通消息
     INVALID = "invalid"                   # 无效输入
 
@@ -84,8 +84,8 @@ class CommandProcessor:
     
     # 支持的@提及目标
     MENTION_TARGETS = {
-        "logician": ["逻辑者", "logic", "l"],
-        "skeptic": ["怀疑者", "doubt", "s"],
+        "apollo": ["逻辑者", "logic", "l", "logician"],
+        "muses": ["怀疑者", "doubt", "s", "skeptic"], 
         "both": ["all", "所有", "全部"],
         "system": ["系统", "sys"]
     }
@@ -339,8 +339,8 @@ class CommandProcessor:
                 help_text += f"  {info['usage']:<15} - {info['description']}\n"
             
             help_text += "\n@提及指令:\n"
-            help_text += "  @logician <消息> - 向逻辑者发送消息\n"
-            help_text += "  @skeptic <消息>  - 向怀疑者发送消息\n"
+            help_text += "  @apollo <消息>   - 向Apollo发送消息\n"
+            help_text += "  @muses <消息>    - 向Muses发送消息\n"
             help_text += "  @both <消息>     - 向两个智能体发送消息\n"
             
             help_text += "\n提示:\n"

@@ -140,14 +140,14 @@ class RealTimeDisplay:
         sender_name = self._get_sender_display_name(message.sender)
         
         # 根据发送者选择样式
-        if sender_name in ["逻辑者", "Logician"] or "logician" in sender_name.lower():
+        if sender_name in ["Apollo", "逻辑者", "Logician"] or "apollo" in sender_name.lower() or "logician" in sender_name.lower():
             icon = "🤔"
-            border_style = self.theme.get("panel_border", {}).get("logician", "blue")
-            display_name = "逻辑者"
-        elif sender_name in ["怀疑者", "Skeptic"] or "skeptic" in sender_name.lower():
+            border_style = self.theme.get("panel_border", {}).get("apollo", "blue")
+            display_name = "Apollo"
+        elif sender_name in ["Muses", "怀疑者", "Skeptic"] or "muses" in sender_name.lower() or "skeptic" in sender_name.lower():
             icon = "🤨"
-            border_style = self.theme.get("panel_border", {}).get("skeptic", "red")
-            display_name = "怀疑者"
+            border_style = self.theme.get("panel_border", {}).get("muses", "red")
+            display_name = "Muses"
         elif sender_name in ["用户", "User"] or "user" in sender_name.lower():
             icon = "👤"
             border_style = self.theme.get("panel_border", {}).get("user", "yellow")
@@ -197,7 +197,7 @@ class RealTimeDisplay:
             input_text.append("💬 ", style="yellow")
             input_text.append(self.input_prompt, style="dim white")
             input_text.append("\n")
-            input_text.append("提示: 使用 @logician/@skeptic 提及智能体，/help 查看指令", style="dim cyan")
+            input_text.append("提示: 使用 @apollo/@muses 提及智能体，/help 查看指令", style="dim cyan")
             
             input_panel = Panel(
                 input_text,
@@ -403,9 +403,9 @@ def demo_realtime_display():
         # 模拟消息流
         messages = [
             Message("AI技术确实在改变我们的生活方式", "逻辑者", MessageType.ARGUMENT),
-            Message("但我们需要考虑其负面影响", "怀疑者", MessageType.COUNTER),
-            Message("@logician 你能提供更多具体例子吗？", "用户", MessageType.USER_INPUT),
-            Message("当然，比如在医疗、教育、交通等领域...", "逻辑者", MessageType.CLARIFICATION),
+            Message("但我们需要考虑其负面影响", "Muses", MessageType.COUNTER),
+            Message("@apollo 你能提供更多具体例子吗？", "用户", MessageType.USER_INPUT),
+            Message("当然，比如在医疗、教育、交通等领域...", "Apollo", MessageType.CLARIFICATION),
         ]
         
         # 逐个添加消息，模拟实时对话

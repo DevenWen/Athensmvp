@@ -151,6 +151,88 @@ class Message:
         """调试用字符串表示"""
         return (f"Message(id='{self.id[:8]}...', sender='{self.sender}', "
                 f"type={self.message_type.value}, content='{self.content[:30]}...')")
+    
+    def format_as_letter(self, recipient: str = None) -> str:
+        """
+        将消息格式化为书信格式
+        
+        Args:
+            recipient: 接收者名称，如果为None则使用消息中的recipient
+            
+        Returns:
+            书信格式的消息内容
+        """
+        if recipient is None:
+            recipient = self.recipient
+        
+        if not recipient:
+            # 如果没有指定接收者，返回原始内容
+            return self.content
+        
+        # 生成书信格式
+        greeting = self.get_letter_greeting(recipient)
+        signature = self.get_letter_signature()
+        
+        formatted_content = f"{greeting}\n\n{self.content}\n\n{signature}"
+        return formatted_content
+    
+    def get_letter_greeting(self, recipient: str) -> str:
+        """
+        获取书信问候语
+        
+        Args:
+            recipient: 接收者名称
+            
+        Returns:
+            书信问候语
+        """
+        # 根据发送者和接收者确定问候语
+        if self.sender == "Apollo" and recipient == "Muses":
+            return "致 Muses，"
+        elif self.sender == "Muses" and recipient == "Apollo":
+            return "致 Apollo，"
+        elif self.sender in ["用户", "User"]:
+            if recipient in ["Apollo", "Muses"]:
+                return f"致 {recipient}，"
+            else:
+                return "致各位，"
+        else:
+            # 通用格式
+            return f"致 {recipient}，"
+    
+    def get_letter_signature(self) -> str:
+        """
+        获取书信签名
+        
+        Returns:
+            书信签名
+        """
+        return f"此致\n{self.sender}"
+    
+    def add_letter_header(self, sender: str = None, recipient: str = None) -> str:
+        """
+        添加书信头部格式
+        
+        Args:
+            sender: 发送者，如果为None则使用消息中的sender
+            recipient: 接收者，如果为None则使用消息中的recipient
+            
+        Returns:
+            带有书信头部的消息内容
+        """
+        actual_sender = sender or self.sender
+        actual_recipient = recipient or self.recipient
+        
+        if not actual_recipient:
+            return self.content
+        
+        # 生成头部
+        greeting = f"致 {actual_recipient}，" if actual_sender != actual_recipient else ""
+        
+        if greeting:
+            return f"{greeting}\n\n{self.content}\n\n此致\n{actual_sender}"
+        else:
+            return self.content
 
 
 class MessageBuilder:
