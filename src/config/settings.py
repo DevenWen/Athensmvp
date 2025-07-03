@@ -229,15 +229,15 @@ class Settings(BaseModel):
         user_config = self.user_config
         if not user_config:
             return {
-                "logs": "~/.athens/logs",
-                "reports": "~/.athens/reports", 
-                "exports": "~/.athens/exports"
+                "logs": ".athens/logs",
+                "reports": ".athens/reports", 
+                "exports": ".athens/exports"
             }
         
         return user_config.get_setting("directories", {
-            "logs": "~/.athens/logs",
-            "reports": "~/.athens/reports",
-            "exports": "~/.athens/exports"
+            "logs": ".athens/logs",
+            "reports": ".athens/reports",
+            "exports": ".athens/exports"
         })
 
 # 延迟初始化settings实例，避免导入时的初始化问题
